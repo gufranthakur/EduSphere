@@ -4,6 +4,7 @@ import com.formdev.flatlaf.FlatClientProperties;
 import edusphere.App;
 import edusphere.controllers.forms.CreateClass;
 import edusphere.models.Class;
+import edusphere.models.Student;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,7 +48,20 @@ public class HomeView {
 
         createClassButton.setBackground(new Color(81, 109, 237));
 
+    }
 
+    public void runTest() {
+        Class newClass = new Class("Test");
+        for (int i = 0; i < 15; i++) {
+            newClass.aBatch.add(new Student("Test-A", "A"));
+            newClass.bBatch.add(new Student("Test-B", "B"));
+            newClass.cBatch.add(new Student("Test-C", "C"));
+        }
+        addClassToBox(newClass);
+        Class selectedClass = (Class) Objects.requireNonNull(classBox.getSelectedItem());
+
+        app.datasheetView.setDataSheetClass(selectedClass);
+        app.attendenceView.setAttendanceClass(selectedClass);
     }
 
     public void addActionListeners() {
@@ -63,16 +77,27 @@ public class HomeView {
 
         datasheetButton.addActionListener(e -> {
             if (classBox.getSelectedItem() == null) app.throwError("No class selected");
-             else app.changeState("DatasheetView");
+             else  {
+                 app.datasheetView.loadClassData();
+                 app.changeState("DatasheetView");
+            }
         });
 
         attendanceButton.addActionListener(e -> {
             if (classBox.getSelectedItem() == null) app.throwError("No class selected");
-            else app.changeState("AttendanceView");
+            else {
+                app.attendenceView.loadAttendanceData();
+                app.changeState("AttendanceView");
+            }
         });
 
-        classBox.addActionListener(e -> app.datasheetView.setDataSheetClass((Class)
-                Objects.requireNonNull(classBox.getSelectedItem())));
+        classBox.addActionListener(e -> {
+
+            Class selectedClass = (Class) Objects.requireNonNull(classBox.getSelectedItem());
+
+            app.datasheetView.setDataSheetClass(selectedClass);
+            app.attendenceView.setAttendanceClass(selectedClass);
+        });
     }
 
     public void addClassToBox(Class addedClass) {

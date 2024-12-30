@@ -6,11 +6,10 @@ import java.util.ArrayList;
 public class Student{
 
     private String fullName, batch;
-    private int rollNo;
+    private Integer rollNo;
     private String enrollmentNo;
     private boolean gender;
 
-    private Integer totalLectures;
     private Integer presentLectures;
     private Integer attendance;
 
@@ -38,7 +37,7 @@ public class Student{
         return rollNo;
     }
 
-    public void setRollNo(int rollNo) {
+    public void setRollNo(Integer rollNo) {
         this.rollNo = rollNo;
     }
 
@@ -64,14 +63,6 @@ public class Student{
 
     public void setPresentLectures(Integer presentLectures) {
         this.presentLectures = presentLectures;
-    }
-
-    public int getTotalLectures() {
-        return presentLectures;
-    }
-
-    public void setTotalLectures(Integer totalLectures) {
-        this.presentLectures = totalLectures;
     }
 
     public float getAttendance() {

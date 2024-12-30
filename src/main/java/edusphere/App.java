@@ -1,12 +1,12 @@
 package edusphere;
 
+import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import edusphere.controllers.AttendenceView;
 import edusphere.controllers.DatasheetView;
 import edusphere.controllers.HomeView;
 import edusphere.controllers.LoginView;
-import edusphere.models.Class;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,7 +18,10 @@ public class App extends JFrame {
     public DatasheetView datasheetView;
     public AttendenceView attendenceView;
 
-    //DataManager dataManager = new DataManager(this, null, null);
+    public Font fontSmall = new Font(FlatInterFont.FAMILY, Font.PLAIN, 20);
+    public Font fontLarge = new Font(FlatInterFont.FAMILY, Font.PLAIN, 30);
+
+
 
     public App() {
         this.setSize(1000, 700);
@@ -42,6 +45,9 @@ public class App extends JFrame {
 
         attendenceView = new AttendenceView(this);
         attendenceView.init();
+        attendenceView.initActionListeners();
+
+        homeView.runTest();
     }
 
     public void addComponent() {

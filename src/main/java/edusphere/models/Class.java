@@ -3,7 +3,7 @@ package edusphere.models;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.ArrayList;
 
-public class Class extends DefaultMutableTreeNode {
+public class Class{
 
     private String className, subjectName,
                     course, semester, classType;

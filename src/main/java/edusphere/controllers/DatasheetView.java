@@ -73,6 +73,7 @@ public class DatasheetView {
 
                 Object userObject = selectedNode.getUserObject();
                 if (userObject instanceof Student) {
+                    rightPanel.setVisible(true);
                     displayStudentDetails((Student) userObject);
                 }
             }
@@ -95,6 +96,7 @@ public class DatasheetView {
     }
 
     public void loadClassData() {
+        rightPanel.setVisible(false);
         clearTreeNodes();
 
         aBatch = new DefaultMutableTreeNode("A Batch");
@@ -161,6 +163,8 @@ public class DatasheetView {
             System.out.println("Error: " + e.getMessage());
         } catch (ArithmeticException a) {
             System.out.println("Arithmetic Exception");
+        } catch (IllegalArgumentException i) {
+            System.out.println("Error : " + i.getMessage() + i.getCause());
         }
 
         app.revalidate();
@@ -189,6 +193,7 @@ public class DatasheetView {
 
         if (name != null && !name.trim().isEmpty()) {
             Student newStudent = getStudent(name, batch);
+
             DefaultMutableTreeNode studentNode = new DefaultMutableTreeNode(newStudent);
 
             switch (batch) {
