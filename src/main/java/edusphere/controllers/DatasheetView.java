@@ -11,8 +11,6 @@ import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
-import java.util.Iterator;
 
 public class DatasheetView {
     private JPanel rootPanel;
@@ -73,40 +71,63 @@ public class DatasheetView {
                     return;
                 }
 
-                if (selectedNode instanceof Student) {
-                    displayStudentDetails((Student) selectedNode);
+                Object userObject = selectedNode.getUserObject();
+                if (userObject instanceof Student) {
+                    displayStudentDetails((Student) userObject);
                 }
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseClicked(e);
 
                 if(e.isPopupTrigger()) {
-                    int row = studentTree.getClosestRowForLocation(e.getX(), e.getY());
-                    studentTree.setSelectionRow(row);
-                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+                            studentTree.getClosestPathForLocation(e.getX(), e.getY())
+                            .getLastPathComponent();
+                    if (node != null) {
+                        studentTree.setSelectionPath(studentTree.getClosestPathForLocation(e.getX(), e.getY()));
+                        popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                    }
                 }
             }
         });
     }
 
     public void loadClassData() {
+        clearTreeNodes();
+
         aBatch = new DefaultMutableTreeNode("A Batch");
         bBatch = new DefaultMutableTreeNode("B Batch");
         cBatch = new DefaultMutableTreeNode("C Batch");
 
-        for (Student student : dataSheetClass.aBatch) aBatch.add(student);
-        for (Student student : dataSheetClass.bBatch) bBatch.add(student);
-        for (Student student : dataSheetClass.cBatch) cBatch.add(student);
+        if (dataSheetClass != null) {
+            for (Student student : dataSheetClass.aBatch) {
+                DefaultMutableTreeNode studentNode = new DefaultMutableTreeNode(student);
+                aBatch.add(studentNode);
+            }
+            for (Student student : dataSheetClass.bBatch) {
+                DefaultMutableTreeNode studentNode = new DefaultMutableTreeNode(student);
+                bBatch.add(studentNode);
+            }
+            for (Student student : dataSheetClass.cBatch) {
+                DefaultMutableTreeNode studentNode = new DefaultMutableTreeNode(student);
+                cBatch.add(studentNode);
+            }
 
-        root.add(aBatch);
-        root.add(bBatch);
-        root.add(cBatch);
+            root.add(aBatch);
+            root.add(bBatch);
+            root.add(cBatch);
+
+            root.setUserObject(dataSheetClass.getClassName());
+        }
 
         refreshTree();
     }
 
     public void displayStudentDetails(Student student) {
+        if (student == null) return;
+
         nameField.setText(student.getFullName());
 
         try {
@@ -117,18 +138,29 @@ public class DatasheetView {
             else femaleRadioButton.setSelected(true);
 
             totalLectureSpinner.setValue(dataSheetClass.getTotalLectures());
-            presentSpinner.setValue(student.getTotalLectures());
-            student.setAttendance(dataSheetClass.getTotalLectures() / student.getTotalLectures());
-            attendanceSpinner.setValue(student.getAttendance());
+            presentSpinner.setValue(student.getPresentLectures());
+
+            // Calculate attendance safely
+            if (student.getPresentLectures() != null && dataSheetClass.getTotalLectures() > 0) {
+                float attendance = (student.getPresentLectures() * 100.0f) / dataSheetClass.getTotalLectures();
+                attendanceSpinner.setValue((int) attendance);
+                student.setAttendance((int) attendance);
+            }
 
             ptt1spinner.setValue(student.getPtt1Marks());
             ptt2spinner.setValue(student.getPtt2Marks());
-            student.setPttAverage((student.getPtt1Marks() + student.getPtt2Marks()) / 2);
-            pttAverageSpinner.setValue(student.getPttAverage());
 
-        } catch (NullPointerException | ArithmeticException e) {
-            //Go to hell.
-            System.out.println("Exception Caught : " + Arrays.toString(e.getMessage().split("\n", 1)));
+            // Calculate PTT average safely
+            if (student.getPtt1Marks() != null && student.getPtt2Marks() != null) {
+                int average = (student.getPtt1Marks() + student.getPtt2Marks()) / 2;
+                pttAverageSpinner.setValue(average);
+                student.setPttAverage(average);
+            }
+
+        } catch (NullPointerException e) {
+            System.out.println("Error: " + e.getMessage());
+        } catch (ArithmeticException a) {
+            System.out.println("Arithmetic Exception");
         }
 
         app.revalidate();
@@ -157,18 +189,19 @@ public class DatasheetView {
 
         if (name != null && !name.trim().isEmpty()) {
             Student newStudent = getStudent(name, batch);
+            DefaultMutableTreeNode studentNode = new DefaultMutableTreeNode(newStudent);
 
             switch (batch) {
                 case "A Batch":
-                    aBatch.add(newStudent);
+                    aBatch.add(studentNode);
                     dataSheetClass.aBatch.add(newStudent);
                     break;
                 case "B Batch":
-                    bBatch.add(newStudent);
+                    bBatch.add(studentNode);
                     dataSheetClass.bBatch.add(newStudent);
                     break;
                 case "C Batch":
-                    cBatch.add(newStudent);
+                    cBatch.add(studentNode);
                     dataSheetClass.cBatch.add(newStudent);
                     break;
                 default:
@@ -181,29 +214,43 @@ public class DatasheetView {
 
     public void deleteStudent() {
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) studentTree.getLastSelectedPathComponent();
-        if (selectedNode != null) {
+        if (selectedNode != null && selectedNode.getUserObject() instanceof Student) {
+            Student studentToRemove = (Student) selectedNode.getUserObject();
             DefaultTreeModel model = (DefaultTreeModel) studentTree.getModel();
+
+            // Remove from tree
             model.removeNodeFromParent(selectedNode);
+
+            // Remove from class's batch list
+            if (studentToRemove.getBatch().equals("A")) {
+                dataSheetClass.aBatch.remove(studentToRemove);
+            } else if (studentToRemove.getBatch().equals("B")) {
+                dataSheetClass.bBatch.remove(studentToRemove);
+            } else if (studentToRemove.getBatch().equals("C")) {
+                dataSheetClass.cBatch.remove(studentToRemove);
+            }
         }
         refreshTree();
     }
 
     private void setStudentDetails() {
-        Student selectedStudent = (Student) studentTree.getLastSelectedPathComponent();
-        selectedStudent.setFullName(selectedStudent.getFullName());
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) studentTree.getLastSelectedPathComponent();
+        if (node == null || !(node.getUserObject() instanceof Student)) return;
+
+        Student selectedStudent = (Student) node.getUserObject();
+        selectedStudent.setFullName(nameField.getText());
         selectedStudent.setRollNo((Integer) rollNoSpinner.getValue());
         selectedStudent.setEnrollmentNo(enrollmentNoField.getText());
         selectedStudent.setGender(maleRadioButton.isSelected());
 
-        selectedStudent.setTotalLectures((Integer) totalLectureSpinner.getValue());
+        selectedStudent.setPresentLectures((Integer) presentSpinner.getValue());
         selectedStudent.setAttendance((Integer) attendanceSpinner.getValue());
 
-        selectedStudent.setAttendance((Integer) attendanceSpinner.getValue());
         selectedStudent.setPtt1Marks((Integer) ptt1spinner.getValue());
         selectedStudent.setPtt2Marks((Integer) ptt2spinner.getValue());
         selectedStudent.setPttAverage((Integer) pttAverageSpinner.getValue());
 
-
+        refreshTree();
     }
 
     private Student getStudent(String name, String batch) {
@@ -212,7 +259,6 @@ public class DatasheetView {
         newStudent.setRollNo(0);
         newStudent.setEnrollmentNo("");
         newStudent.setGender(true);
-        newStudent.setTotalLectures(0);
         newStudent.setPresentLectures(0);
         newStudent.setAttendance(0);
         newStudent.setPtt1Marks(0);
@@ -221,8 +267,14 @@ public class DatasheetView {
         return newStudent;
     }
 
+    private void clearTreeNodes() {
+        if (aBatch != null) aBatch.removeAllChildren();
+        if (bBatch != null) bBatch.removeAllChildren();
+        if (cBatch != null) cBatch.removeAllChildren();
+        root.removeAllChildren();
+    }
+
     public void refreshTree() {
-        // I got this code from Claude AI and I have no idea how it works, but it works.
         java.util.Enumeration<javax.swing.tree.TreePath> expanded = studentTree.getExpandedDescendants(new javax.swing.tree.TreePath(root));
 
         DefaultTreeModel model = (DefaultTreeModel) studentTree.getModel();
@@ -246,5 +298,4 @@ public class DatasheetView {
     public JPanel getRootPanel() {
         return rootPanel;
     }
-
 }

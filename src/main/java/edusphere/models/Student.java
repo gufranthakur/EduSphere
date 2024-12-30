@@ -1,8 +1,9 @@
 package edusphere.models;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.util.ArrayList;
 
-public class Student extends DefaultMutableTreeNode {
+public class Student{
 
     private String fullName, batch;
     private int rollNo;
@@ -18,7 +19,7 @@ public class Student extends DefaultMutableTreeNode {
     private Integer pttAverage;
 
     public Student(String fullName, String batch) {
-        super(fullName);
+
         this.fullName = fullName;
         this.batch = batch;
     }
@@ -104,4 +105,20 @@ public class Student extends DefaultMutableTreeNode {
     public void setPttAverage(Integer pttAverage) {
         this.pttAverage = pttAverage;
     }
+
+    public String getBatch() {
+        return batch;
+    }
+
+    public void setBatch(String batch) {
+        this.batch = batch;
+    }
+
+    @Override
+    public String toString() {
+        return fullName;
+    }
 }
+
+
+

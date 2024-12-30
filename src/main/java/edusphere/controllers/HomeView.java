@@ -71,10 +71,8 @@ public class HomeView {
             else app.changeState("AttendanceView");
         });
 
-        classBox.addActionListener(e -> {
-            app.datasheetView.setDataSheetClass((Class) Objects.requireNonNull(classBox.getSelectedItem()));
-            System.out.println(app.datasheetView.dataSheetClass);
-        });
+        classBox.addActionListener(e -> app.datasheetView.setDataSheetClass((Class)
+                Objects.requireNonNull(classBox.getSelectedItem())));
     }
 
     public void addClassToBox(Class addedClass) {
