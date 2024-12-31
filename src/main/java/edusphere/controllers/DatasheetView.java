@@ -4,6 +4,7 @@ import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import edusphere.App;
 import edusphere.models.Class;
 import edusphere.models.Student;
+import raven.swing.spinner.SpinnerProgress;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -22,20 +23,20 @@ public class DatasheetView {
     private JSpinner rollNoSpinner;
     private JRadioButton femaleRadioButton;
     private JPanel attendanceDetails;
-    private JSpinner presentSpinner;
-    private JTextArea attendanceGraphTextArea;
-    private JSpinner attendanceSpinner;
+    private JTextField presentSpinner;
+    private SpinnerProgress attendanceSpinnerProgress;
+    private JTextField attendanceSpinner;
     private JPanel performancePanel;
-    private JSpinner ptt1spinner;
-    private JSpinner ptt2spinner;
+    private JTextField ut1spinner;
+    private JTextField ut2spinner;
     private JScrollPane rightScrollPane;
-    private JTextArea graphArea;
+    private SpinnerProgress marksSpinnerProgress;
     private JScrollPane leftScrollPane;
     private JTree studentTree;
     private JScrollPane studentTreeScrollPane;
     private DefaultMutableTreeNode root;
-    private JSpinner totalLectureSpinner;
-    private JSpinner pttAverageSpinner;
+    private JTextField totalLectureSpinner;
+    private JTextField pttAverageSpinner;
     private JButton backButton;
     private JPanel studentPanel;
     private JButton saveButton;
@@ -56,15 +57,18 @@ public class DatasheetView {
         studentTree.setFont(new Font(FlatInterFont.FAMILY, Font.PLAIN, 16));
         studentPanel.add(studentTree, BorderLayout.CENTER);
 
-        JSpinner.NumberEditor editor = new JSpinner.NumberEditor(attendanceSpinner, "0.00'%'");
-        attendanceSpinner.setEditor(editor);
-
         createPopupMenu();
     }
 
     public void init() {
+
+
         backButton.addActionListener(e -> app.changeState("HomeView"));
         saveButton.addActionListener(e -> setStudentDetails());
+
+        maleRadioButton.addActionListener(e -> femaleRadioButton.setSelected(false));
+
+        femaleRadioButton.addActionListener(e -> maleRadioButton.setSelected(false));
 
         studentTree.addMouseListener(new MouseAdapter() {
             @Override
@@ -141,35 +145,48 @@ public class DatasheetView {
             enrollmentNoField.setText(student.getEnrollmentNo());
         } catch (NullPointerException e) {
             rollNoSpinner.setValue(0);
-            enrollmentNoField.setText("0");
+            enrollmentNoField.setText("-");
         } try {
-            totalLectureSpinner.setValue(dataSheetClass.getTotalLectures().size());
-            presentSpinner.setValue(student.getPresentLectures().size());
+            totalLectureSpinner.setText(String.valueOf(dataSheetClass.getTotalLectures().size()));
+            presentSpinner.setText(String.valueOf(student.getPresentLectures().size()));
 
             int totalLectures = dataSheetClass.getTotalLectures().size();
             int presentLectures = student.getPresentLectures().size();
 
             if (totalLectures > 0) {
-                double attendancePercentage = (presentLectures / (double) totalLectures) * 100;
-                attendanceSpinner.setValue(attendancePercentage);
+                float attendancePercentage = (presentLectures / (float) totalLectures) * 100;
+                attendanceSpinner.setText(String.valueOf(attendancePercentage));
+
+                attendanceSpinnerProgress.setString(String.valueOf(attendancePercentage));
+                attendanceSpinnerProgress.setValue((int) attendancePercentage);
             } else {
-                attendanceSpinner.setValue(0);
+                attendanceSpinner.setText("-");
             }
 
         } catch (ArithmeticException e) {
-            presentSpinner.setValue(student.getPresentLectures().size());
-            attendanceSpinner.setValue(0);
-        } try {
-            ptt1spinner.setValue(student.getPtt1Marks());
-            ptt2spinner.setValue(student.getPtt2Marks());
-
-            int average = (student.getPtt1Marks() + student.getPtt2Marks()) / 2;
-            pttAverageSpinner.setValue(average);
-        } catch (IllegalArgumentException e) {
-            ptt1spinner.setValue(0);
-            ptt2spinner.setValue(0);
+            presentSpinner.setText(String.valueOf(student.getPresentLectures().size()));
+            attendanceSpinner.setText("-");
         }
 
+        if (student.getUt1Marks() == null) ut1spinner.setText("-");
+        else ut1spinner.setText(student.getUt1Marks().toString());
+
+        if (student.getUt2Marks() == null) ut2spinner.setText("-");
+        else ut2spinner.setText(student.getUt2Marks().toString());
+
+        if (student.getUt1Marks() == null || student.getUt2Marks() == null) {
+            pttAverageSpinner.setText("-");
+
+            marksSpinnerProgress.setString("-");
+            marksSpinnerProgress.setValue(0);
+        } else {
+            int average = (student.getUt1Marks() + student.getUt2Marks()) / 2;
+            pttAverageSpinner.setText(String.valueOf(average));
+
+            marksSpinnerProgress.setString(String.valueOf(average));
+            marksSpinnerProgress.setValue(average);
+
+        }
         app.revalidate();
         app.repaint();
     }
@@ -242,6 +259,7 @@ public class DatasheetView {
     }
 
     private void setStudentDetails() {
+        System.out.println("Saved");
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) studentTree.getLastSelectedPathComponent();
         if (node == null || !(node.getUserObject() instanceof Student)) return;
 
@@ -250,10 +268,6 @@ public class DatasheetView {
         selectedStudent.setRollNo((Integer) rollNoSpinner.getValue());
         selectedStudent.setEnrollmentNo(enrollmentNoField.getText());
         selectedStudent.setGender(maleRadioButton.isSelected());
-
-        selectedStudent.setPtt1Marks((Integer) ptt1spinner.getValue());
-        selectedStudent.setPtt2Marks((Integer) ptt2spinner.getValue());
-        selectedStudent.setPttAverage((Integer) pttAverageSpinner.getValue());
 
         refreshTree();
     }
@@ -264,8 +278,8 @@ public class DatasheetView {
         newStudent.setRollNo(0);
         newStudent.setEnrollmentNo("");
         newStudent.setGender(true);
-        newStudent.setPtt1Marks(0);
-        newStudent.setPtt2Marks(0);
+        newStudent.setUt1Marks(0);
+        newStudent.setUt2Marks(0);
         newStudent.setPttAverage(0);
         return newStudent;
     }

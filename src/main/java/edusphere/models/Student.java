@@ -13,9 +13,10 @@ public class Student{
 
     private ArrayList<LocalDate> presentLectures;
 
-    private Integer ptt1Marks;
-    private Integer ptt2Marks;
+    private Integer ut1Marks;
+    private Integer ut2Marks;
     private Integer pttAverage;
+    private Integer prelimMarks;
 
     public Student(String fullName, String batch) {
         this.fullName = fullName;
@@ -58,20 +59,20 @@ public class Student{
         this.gender = gender;
     }
 
-    public Integer getPtt1Marks() {
-        return ptt1Marks;
+    public Integer getUt1Marks() {
+        return ut1Marks;
     }
 
-    public void setPtt1Marks(Integer ptt1Marks) {
-        this.ptt1Marks = ptt1Marks;
+    public void setUt1Marks(Integer ut1Marks) {
+        this.ut1Marks = ut1Marks;
     }
 
-    public Integer getPtt2Marks() {
-        return ptt2Marks;
+    public Integer getUt2Marks() {
+        return ut2Marks;
     }
 
-    public void setPtt2Marks(Integer ptt2Marks) {
-        this.ptt2Marks = ptt2Marks;
+    public void setUt2Marks(Integer ut2Marks) {
+        this.ut2Marks = ut2Marks;
     }
 
     public Integer getPttAverage() {
@@ -88,6 +89,14 @@ public class Student{
 
     public ArrayList<LocalDate> getPresentLectures() {
         return presentLectures;
+    }
+
+    public Integer getPrelimMarks() {
+        return prelimMarks;
+    }
+
+    public void setPrelimMarks(Integer prelimMarks) {
+        this.prelimMarks = prelimMarks;
     }
 
     public void setBatch(String batch) {

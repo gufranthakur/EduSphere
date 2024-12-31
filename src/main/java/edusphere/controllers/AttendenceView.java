@@ -53,9 +53,7 @@ public class AttendenceView {
 
     public void initActionListeners() {
         backButton.addActionListener(e -> app.changeState("HomeView"));
-        saveButton.addActionListener(e -> {
 
-        });
     }
 
 

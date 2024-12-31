@@ -45,6 +45,7 @@ public class App extends JFrame {
 
         marksView = new MarksView(this);
         marksView.init();
+        marksView.initActionListeners();
 
         homeView.runTest();
     }
@@ -77,6 +78,7 @@ public class App extends JFrame {
 
     public static void main(String[] args) {
         FlatMacDarkLaf.setup();
+
 
         App app = new App();
         app.init();

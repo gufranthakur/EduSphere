@@ -44,6 +44,21 @@ public class Class{
         return classType;
     }
 
+    public ArrayList<Student> getAllStudents() {
+        // Create a new ArrayList to hold all students
+        // Initial capacity is sum of all batch sizes for efficiency
+        ArrayList<Student> allStudents = new ArrayList<>(
+                aBatch.size() + bBatch.size() + cBatch.size()
+        );
+
+        // Add all students from each batch to our combined list
+        allStudents.addAll(aBatch);
+        allStudents.addAll(bBatch);
+        allStudents.addAll(cBatch);
+
+        return allStudents;
+    }
+
 
     public ArrayList<LocalDate> getTotalLectures() {
         return totalLectures;
