@@ -8,11 +8,11 @@ public class Class{
     private String className, subjectName,
                     course, semester, classType;
 
+    private int totalLectures;
+
     public ArrayList<Student> aBatch = new ArrayList<>(20);
     public ArrayList<Student> bBatch = new ArrayList<>(20);
     public ArrayList<Student> cBatch = new ArrayList<>(20);
-
-    private int totalLectures = 0;
 
     public Class(String className, String subjectName,
                  String course, String semester,
@@ -29,8 +29,6 @@ public class Class{
         this.className = className;
     }
 
-
-
     //Getters and setters
 
     public String getClassName() {
@@ -43,6 +41,14 @@ public class Class{
 
     public String getClassType() {
         return classType;
+    }
+
+    public int setTotalLectures() {
+        return totalLectures;
+    }
+
+    public void setTotalLectures(int totalLectures) {
+        this.totalLectures = totalLectures;
     }
 
     public int getTotalLectures() {

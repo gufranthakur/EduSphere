@@ -9,6 +9,8 @@ import raven.datetime.DatePicker;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AttendenceView {
     private JPanel rootPanel;
@@ -23,8 +25,11 @@ public class AttendenceView {
     private App app;
     private Class attendanceClass;
 
+    private Map<String, JCheckBox> studentCheckboxes;
+
     public AttendenceView(App app) {
         this.app = app;
+        this.studentCheckboxes = new HashMap<>();  // Initialize the ma
     }
 
     public void init() {
@@ -39,11 +44,16 @@ public class AttendenceView {
 
         datePickerPanel.add(editor);
 
-
+        datePicker.addDateSelectionListener(e -> {
+            loadAttendanceData();
+        });
     }
 
     public void initActionListeners() {
         backButton.addActionListener(e -> app.changeState("HomeView"));
+        saveButton.addActionListener(e -> {
+
+        });
     }
 
     public void loadAttendanceData() {
