@@ -55,6 +55,10 @@ public class DatasheetView {
         studentTree = new JTree(root);
         studentTree.setFont(new Font(FlatInterFont.FAMILY, Font.PLAIN, 16));
         studentPanel.add(studentTree, BorderLayout.CENTER);
+
+        JSpinner.NumberEditor editor = new JSpinner.NumberEditor(attendanceSpinner, "0.00'%'");
+        attendanceSpinner.setEditor(editor);
+
         createPopupMenu();
     }
 
@@ -135,36 +139,35 @@ public class DatasheetView {
         try {
             rollNoSpinner.setValue(student.getRollNo());
             enrollmentNoField.setText(student.getEnrollmentNo());
+        } catch (NullPointerException e) {
+            rollNoSpinner.setValue(0);
+            enrollmentNoField.setText("0");
+        } try {
+            totalLectureSpinner.setValue(dataSheetClass.getTotalLectures().size());
+            presentSpinner.setValue(student.getPresentLectures().size());
 
-            if (student.isGender()) maleRadioButton.setSelected(true);
-            else femaleRadioButton.setSelected(true);
+            int totalLectures = dataSheetClass.getTotalLectures().size();
+            int presentLectures = student.getPresentLectures().size();
 
-            totalLectureSpinner.setValue(dataSheetClass.getTotalLectures());
-            presentSpinner.setValue(student.getPresentLectures());
-
-            // Calculate attendance safely
-            if (student.getPresentLectures() != null && dataSheetClass.getTotalLectures() > 0) {
-                float attendance = (student.getPresentLectures() * 100.0f) / dataSheetClass.getTotalLectures();
-                attendanceSpinner.setValue((int) attendance);
-                student.setAttendance((int) attendance);
+            if (totalLectures > 0) {
+                double attendancePercentage = (presentLectures / (double) totalLectures) * 100;
+                attendanceSpinner.setValue(attendancePercentage);
+            } else {
+                attendanceSpinner.setValue(0);
             }
 
+        } catch (ArithmeticException e) {
+            presentSpinner.setValue(student.getPresentLectures().size());
+            attendanceSpinner.setValue(0);
+        } try {
             ptt1spinner.setValue(student.getPtt1Marks());
             ptt2spinner.setValue(student.getPtt2Marks());
 
-            // Calculate PTT average safely
-            if (student.getPtt1Marks() != null && student.getPtt2Marks() != null) {
-                int average = (student.getPtt1Marks() + student.getPtt2Marks()) / 2;
-                pttAverageSpinner.setValue(average);
-                student.setPttAverage(average);
-            }
-
-        } catch (NullPointerException e) {
-            System.out.println("Error: " + e.getMessage());
-        } catch (ArithmeticException a) {
-            System.out.println("Arithmetic Exception");
-        } catch (IllegalArgumentException i) {
-            System.out.println("Error : " + i.getMessage() + i.getCause());
+            int average = (student.getPtt1Marks() + student.getPtt2Marks()) / 2;
+            pttAverageSpinner.setValue(average);
+        } catch (IllegalArgumentException e) {
+            ptt1spinner.setValue(0);
+            ptt2spinner.setValue(0);
         }
 
         app.revalidate();
@@ -248,9 +251,6 @@ public class DatasheetView {
         selectedStudent.setEnrollmentNo(enrollmentNoField.getText());
         selectedStudent.setGender(maleRadioButton.isSelected());
 
-        selectedStudent.setPresentLectures((Integer) presentSpinner.getValue());
-        selectedStudent.setAttendance((Integer) attendanceSpinner.getValue());
-
         selectedStudent.setPtt1Marks((Integer) ptt1spinner.getValue());
         selectedStudent.setPtt2Marks((Integer) ptt2spinner.getValue());
         selectedStudent.setPttAverage((Integer) pttAverageSpinner.getValue());
@@ -264,8 +264,6 @@ public class DatasheetView {
         newStudent.setRollNo(0);
         newStudent.setEnrollmentNo("");
         newStudent.setGender(true);
-        newStudent.setPresentLectures(0);
-        newStudent.setAttendance(0);
         newStudent.setPtt1Marks(0);
         newStudent.setPtt2Marks(0);
         newStudent.setPttAverage(0);

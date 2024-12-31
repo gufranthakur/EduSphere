@@ -3,10 +3,7 @@ package edusphere;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
-import edusphere.controllers.AttendenceView;
-import edusphere.controllers.DatasheetView;
-import edusphere.controllers.HomeView;
-import edusphere.controllers.LoginView;
+import edusphere.controllers.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,11 +14,10 @@ public class App extends JFrame {
     public HomeView homeView;
     public DatasheetView datasheetView;
     public AttendenceView attendenceView;
+    public MarksView marksView;
 
     public Font fontSmall = new Font(FlatInterFont.FAMILY, Font.PLAIN, 20);
     public Font fontLarge = new Font(FlatInterFont.FAMILY, Font.PLAIN, 30);
-
-
 
     public App() {
         this.setSize(1000, 700);
@@ -47,6 +43,9 @@ public class App extends JFrame {
         attendenceView.init();
         attendenceView.initActionListeners();
 
+        marksView = new MarksView(this);
+        marksView.init();
+
         homeView.runTest();
     }
 
@@ -62,7 +61,10 @@ public class App extends JFrame {
             case "DatasheetView" : this.setContentPane(datasheetView.getRootPanel());
             break;
             case "LoginView" : this.setContentPane(loginView.getRootPanel());
+            break;
             case "AttendanceView" : this.setContentPane(attendenceView.getRootPanel());
+            break;
+            case "MarksView" : this.setContentPane(marksView.getRootPanel());
             break;
         }
         repaint();

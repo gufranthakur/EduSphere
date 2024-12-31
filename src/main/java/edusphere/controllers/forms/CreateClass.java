@@ -60,6 +60,10 @@ public class CreateClass extends JFrame{
             theoryRadioButton.setSelected(false);
         });
 
+        cancelButton.addActionListener(e -> {
+            this.dispose();
+        });
+
         createButton.addActionListener(e -> {
             createClass();
         });

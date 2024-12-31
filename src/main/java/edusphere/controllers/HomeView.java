@@ -52,7 +52,7 @@ public class HomeView {
 
     public void runTest() {
         Class newClass = new Class("Test");
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 5; i++) {
             newClass.aBatch.add(new Student("Test-A", "A"));
             newClass.bBatch.add(new Student("Test-B", "B"));
             newClass.cBatch.add(new Student("Test-C", "C"));
@@ -86,8 +86,16 @@ public class HomeView {
         attendanceButton.addActionListener(e -> {
             if (classBox.getSelectedItem() == null) app.throwError("No class selected");
             else {
-                app.attendenceView.loadAttendanceData();
+                app.attendenceView.loadAttendanceDisplayData();
                 app.changeState("AttendanceView");
+            }
+        });
+
+        marksButton.addActionListener(e -> {
+            if (classBox.getSelectedItem() == null) app.throwError("No class selected");
+            else {
+                app.marksView.loadMarksDisplayData();
+                app.changeState("MarksView");
             }
         });
 
@@ -97,6 +105,7 @@ public class HomeView {
 
             app.datasheetView.setDataSheetClass(selectedClass);
             app.attendenceView.setAttendanceClass(selectedClass);
+            app.marksView.setMarkSheetClass(selectedClass);
         });
     }
 

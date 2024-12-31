@@ -1,6 +1,7 @@
 package edusphere.models;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Student{
@@ -10,17 +11,17 @@ public class Student{
     private String enrollmentNo;
     private boolean gender;
 
-    private Integer presentLectures;
-    private Integer attendance;
+    private ArrayList<LocalDate> presentLectures;
 
     private Integer ptt1Marks;
     private Integer ptt2Marks;
     private Integer pttAverage;
 
     public Student(String fullName, String batch) {
-
         this.fullName = fullName;
         this.batch = batch;
+
+        presentLectures = new ArrayList<>();
     }
 
     //Getters and setters
@@ -57,22 +58,6 @@ public class Student{
         this.gender = gender;
     }
 
-    public Integer getPresentLectures() {
-        return presentLectures;
-    }
-
-    public void setPresentLectures(Integer presentLectures) {
-        this.presentLectures = presentLectures;
-    }
-
-    public float getAttendance() {
-        return attendance;
-    }
-
-    public void setAttendance(Integer attendance) {
-        this.attendance = attendance;
-    }
-
     public Integer getPtt1Marks() {
         return ptt1Marks;
     }
@@ -99,6 +84,10 @@ public class Student{
 
     public String getBatch() {
         return batch;
+    }
+
+    public ArrayList<LocalDate> getPresentLectures() {
+        return presentLectures;
     }
 
     public void setBatch(String batch) {

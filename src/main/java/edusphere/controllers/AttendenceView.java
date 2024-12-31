@@ -8,9 +8,8 @@ import raven.datetime.DatePicker;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AttendenceView {
     private JPanel rootPanel;
@@ -25,11 +24,10 @@ public class AttendenceView {
     private App app;
     private Class attendanceClass;
 
-    private Map<String, JCheckBox> studentCheckboxes;
+    private LocalDate currentDate;
 
     public AttendenceView(App app) {
         this.app = app;
-        this.studentCheckboxes = new HashMap<>();  // Initialize the ma
     }
 
     public void init() {
@@ -45,7 +43,11 @@ public class AttendenceView {
         datePickerPanel.add(editor);
 
         datePicker.addDateSelectionListener(e -> {
-            loadAttendanceData();
+            currentDate = datePicker.getSelectedDate();
+            if (!attendanceClass.getTotalLectures().contains(currentDate)) {
+                attendanceClass.getTotalLectures().add(currentDate);
+            }
+            loadAttendanceDisplayData();  // This will refresh the checkboxes with the correct states
         });
     }
 
@@ -56,33 +58,29 @@ public class AttendenceView {
         });
     }
 
-    public void loadAttendanceData() {
+
+
+    public void loadAttendanceDisplayData() {
         attendancePanel.removeAll();
 
-        JLabel aLabel = new JLabel("A Batch");
-        aLabel.setFont(app.fontLarge);
-        aLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        attendancePanel.add(aLabel);
+        // First, get the currently selected date from the date picker
+        currentDate = datePicker.getSelectedDate();
 
+        // Add batch labels and students as before, but with modified checkbox logic
+        JLabel aLabel = getBatchLabel("A Batch");
+        attendancePanel.add(aLabel);
         addBatchToPanel(attendanceClass.aBatch);
 
-        JLabel bLabel = new JLabel("B Batch");
-        bLabel.setFont(app.fontLarge);
-        bLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel bLabel = getBatchLabel("B Batch");
         attendancePanel.add(bLabel);
-
         addBatchToPanel(attendanceClass.bBatch);
 
-        JLabel cLabel = new JLabel("C Batch");
-        cLabel.setFont(app.fontLarge);
-        cLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel cLabel = getBatchLabel("C Batch");
         attendancePanel.add(cLabel);
-
         addBatchToPanel(attendanceClass.cBatch);
 
         app.revalidate();
         app.repaint();
-
     }
 
     public void addBatchToPanel(ArrayList<Student> batch) {
@@ -91,13 +89,49 @@ public class AttendenceView {
             checkBox.setFont(app.fontSmall);
             checkBox.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+            // Set the initial state of the checkbox based on stored attendance
+            if (currentDate != null && student.getPresentLectures().contains(currentDate)) {
+                checkBox.setSelected(true);
+            }
+
+            checkBox.addActionListener(e -> {
+                if (currentDate != null) {
+                    if (checkBox.isSelected()) {
+                        // Add attendance when checked
+                        if (!student.getPresentLectures().contains(currentDate)) {
+                            student.getPresentLectures().add(currentDate);
+                            System.out.println("Added attendance for " + student.getFullName() + " on " + currentDate);
+                        }
+                    } else {
+                        // Remove attendance when unchecked
+                        student.getPresentLectures().remove(currentDate);
+                        System.out.println("Removed attendance for " + student.getFullName() + " on " + currentDate);
+                    }
+                } else {
+                    checkBox.setSelected(false);
+                    app.throwError("Select a date");
+                }
+            });
+
             attendancePanel.add(checkBox);
         }
     }
 
+    private JLabel getBatchLabel(String text) {
+        JLabel aLabel = new JLabel(text);
+        aLabel.setFont(app.fontLarge);
+        aLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Ensures it stretches horizontally
+        aLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, aLabel.getPreferredSize().height)); // Take full width
+        aLabel.setHorizontalTextPosition(SwingConstants.CENTER); // Center the text
+        aLabel.setHorizontalAlignment(SwingConstants.CENTER); // Center the label's text horizontally
+        aLabel.setBackground(new Color(66, 64, 64));
+        aLabel.setOpaque(true);
+        return aLabel;
+    }
+
     public void setAttendanceClass(Class attendanceClass) {
         this.attendanceClass = attendanceClass;
-        loadAttendanceData();
+        loadAttendanceDisplayData();
     }
 
     public JPanel getRootPanel() {
