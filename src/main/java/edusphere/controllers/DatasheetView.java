@@ -40,6 +40,8 @@ public class DatasheetView {
     private JButton backButton;
     private JPanel studentPanel;
     private JButton saveButton;
+    private JTextField absentLectureField;
+    private JTextField prelimField;
 
     public Class dataSheetClass;
     private App app;
@@ -61,8 +63,6 @@ public class DatasheetView {
     }
 
     public void init() {
-
-
         backButton.addActionListener(e -> app.changeState("HomeView"));
         saveButton.addActionListener(e -> setStudentDetails());
 
@@ -152,6 +152,9 @@ public class DatasheetView {
 
             int totalLectures = dataSheetClass.getTotalLectures().size();
             int presentLectures = student.getPresentLectures().size();
+            int absentLectures = dataSheetClass.getTotalLectures().size() - student.getPresentLectures().size();
+
+            absentLectureField.setText(String.valueOf(absentLectures));
 
             if (totalLectures > 0) {
                 float attendancePercentage = (presentLectures / (float) totalLectures) * 100;
@@ -185,8 +188,10 @@ public class DatasheetView {
 
             marksSpinnerProgress.setString(String.valueOf(average));
             marksSpinnerProgress.setValue(average);
-
         }
+
+        if (student.getPrelimMarks() != null) prelimField.setText(student.getPrelimMarks().toString());
+
         app.revalidate();
         app.repaint();
     }

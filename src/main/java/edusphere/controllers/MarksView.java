@@ -4,27 +4,34 @@ import com.formdev.flatlaf.FlatClientProperties;
 import edusphere.App;
 import edusphere.models.Class;
 import edusphere.models.Student;
+import raven.swing.spinner.SpinnerProgress;
 
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicBorders;
 import java.awt.*;
 import java.util.ArrayList;
+
+import java.util.Collections;
 import java.util.Objects;
 
 public class MarksView {
     private JPanel rootPanel;
     private JScrollPane scrollPane;
-    private JButton saveButton;
     private JButton backButton;
-    private JPanel testPanel;
+    private JPanel controlPanel;
     private JPanel marksPanel;
     private JComboBox testBox;
-    private JComboBox sortComboBox;
+
     private JButton averageButton;
+    private SpinnerProgress highestMarksSpinner;
+    private SpinnerProgress averageSpinner;
+    private SpinnerProgress lowestSpinner;
+    private JPanel statisticsPanel;
 
     private App app;
     private Class marksheetClass;
     private boolean isUpdatinSpinner = false;
+
+    private int averageMarks, highestMarks, lowestMarks;
 
     public MarksView(App app) {
         this.app = app;
@@ -37,9 +44,8 @@ public class MarksView {
         testBox.addItem("Unit Test 2");
         testBox.addItem("Prelims");
 
-        sortComboBox.addItem("Roll No.");
-        sortComboBox.addItem("Highest Marks");
-        sortComboBox.addItem("Lowest Marks");
+        statisticsPanel.setBackground(app.getBackground().darker());
+        statisticsPanel.putClientProperty(FlatClientProperties.STYLE, "arc : 30");
     }
 
     public void initActionListeners() {
@@ -47,7 +53,7 @@ public class MarksView {
         averageButton.addActionListener(e -> {
 
             ArrayList<Integer> marks = new ArrayList<>();
-
+ 
             for (Student student : marksheetClass.getAllStudents()) {
                 if (Objects.equals(testBox.getSelectedItem(), "Unit Test 1")) {
                     if (student.getUt1Marks() != null) {
@@ -70,15 +76,51 @@ public class MarksView {
                 totalMarks += mark;
             }
 
-            int averageMarks = totalMarks / marks.size();
-            averageButton.setText("Average : " + averageMarks);
+            try {
+                 averageMarks = totalMarks / marks.size();
+                 highestMarks = Collections.max(marks);
+                 lowestMarks = Collections.min(marks);
+            } catch (ArithmeticException ex) {
+                 averageMarks = 0;
+                 highestMarks = 0;
+                 lowestMarks = 0;
+            }
+            if (Objects.equals(testBox.getSelectedItem(), "Prelims")) {
+                highestMarksSpinner.setMaximum(70);
+                averageSpinner.setMaximum(70);
+                lowestSpinner.setMaximum(70);
 
+                highestMarksSpinner.setValue(highestMarks);
+                highestMarksSpinner.setString(String.valueOf(highestMarks));
+                averageSpinner.setValue(averageMarks);
+                averageSpinner.setString(String.valueOf(averageMarks));
+                lowestSpinner.setValue(lowestMarks);
+                lowestSpinner.setString(String.valueOf(lowestMarks));
+            } else {
+                highestMarksSpinner.setMaximum(30);
+                averageSpinner.setMaximum(30);
+                lowestSpinner.setMaximum(30);
+
+                highestMarksSpinner.setValue(highestMarks);
+                highestMarksSpinner.setString(String.valueOf(highestMarks));
+                averageSpinner.setValue(averageMarks);
+                averageSpinner.setString(String.valueOf(averageMarks));
+                lowestSpinner.setValue(lowestMarks);
+                lowestSpinner.setString(String.valueOf(lowestMarks));
+            }
         });
 
     }
 
     public void loadMarksDisplayData() {
         marksPanel.removeAll();
+
+        highestMarksSpinner.setValue(0);
+        highestMarksSpinner.setString("-");
+        averageSpinner.setValue(0);
+        averageSpinner.setString("-");
+        lowestSpinner.setValue(0);
+        lowestSpinner.setString("-");
 
         JLabel aLabel = getBatchLabel("A Batch");
         marksPanel.add(aLabel);
